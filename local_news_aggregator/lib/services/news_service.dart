@@ -11,11 +11,13 @@ class NewsService {
   /// [city] - City name for filtering (optional)
   /// [state] - State/Province name for filtering (optional)
   /// [country] - Full country name for better filtering (optional)
+  /// [localSourcesOnly] - Filter to show only local news sources (optional)
   Future<List<Map<String, dynamic>>> fetchLocalNews(
     String countryCode, {
     String? city,
     String? state,
     String? country,
+    bool localSourcesOnly = false,
   }) async {
     try {
       // Build highly specific location-based query
@@ -66,7 +68,21 @@ class NewsService {
 
         // Additional client-side filtering for better location specificity
         if (city != null && city.isNotEmpty) {
-          articles = _filterByLocationRelevance(articles, city, state, country);
+          articles = _filterByLocationRelevance(
+            articles,
+            city,
+            state,
+            country,
+            localSourcesOnly: localSourcesOnly,
+          );
+        } else if (localSourcesOnly && state != null && state.isNotEmpty) {
+          // Filter by local sources even if only state is provided
+          articles = articles.where((article) {
+            String source = (article['source']?['name'] ?? '')
+                .toString()
+                .toLowerCase();
+            return _isLocalNewsSource(source, state.toLowerCase());
+          }).toList();
         }
 
         return articles;
@@ -105,8 +121,9 @@ class NewsService {
     List<Map<String, dynamic>> articles,
     String city,
     String? state,
-    String? country,
-  ) {
+    String? country, {
+    bool localSourcesOnly = false,
+  }) {
     return articles.where((article) {
       String title = (article['title'] ?? '').toString().toLowerCase();
       String description = (article['description'] ?? '')
@@ -116,6 +133,14 @@ class NewsService {
       String source = (article['source']?['name'] ?? '')
           .toString()
           .toLowerCase();
+
+      // If local sources only filter is enabled
+      if (localSourcesOnly) {
+        bool isLocalSource = _isLocalNewsSource(source, city.toLowerCase());
+        if (!isLocalSource) {
+          return false; // Skip non-local sources
+        }
+      }
 
       // Combine all text for searching
       String allText = '$title $description $content $source';

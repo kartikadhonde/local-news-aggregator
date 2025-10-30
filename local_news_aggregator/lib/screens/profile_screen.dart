@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'edit_profile_screen.dart';
 import 'welcome_screen.dart';
+import 'feedback_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -20,7 +21,7 @@ class ProfileScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 200.0,
+            expandedHeight: 160.0,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -50,7 +51,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: Center(
                   child: CircleAvatar(
-                    radius: 50,
+                    radius: 36,
                     backgroundColor: Colors.white,
                     child: user.profileImageUrl != null
                         ? ClipOval(
@@ -85,11 +86,11 @@ class ProfileScreen extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   _buildInfoCard(
                     context,
                     icon: Icons.email,
@@ -115,9 +116,9 @@ class ProfileScreen extends StatelessWidget {
                       user.defaultState != null ||
                       user.defaultCountry != null)
                     Card(
-                      elevation: 2,
+                      elevation: 1,
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(12.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -131,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                                 Text(
                                   'Default News Filters',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Theme.of(
                                       context,
@@ -140,7 +141,7 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 8),
                             if (user.defaultCity != null)
                               _buildFilterChip(
                                 context,
@@ -163,9 +164,9 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  const Divider(),
                   const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 12),
                   ListTile(
                     leading: const Icon(Icons.settings, color: Colors.blue),
                     title: const Text('Settings'),
@@ -183,6 +184,19 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Help coming soon!')),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.feedback, color: Colors.teal),
+                    title: const Text('Send Feedback'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FeedbackScreen(),
+                        ),
                       );
                     },
                   ),

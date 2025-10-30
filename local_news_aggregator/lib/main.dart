@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/admin_main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,8 @@ class LocalNewsAggregatorApp extends StatelessWidget {
             surface: Colors.white,
             surfaceContainerHighest: const Color(0xFFE0F2F1),
           ),
+          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+          iconTheme: const IconThemeData(size: 18),
           useMaterial3: true,
           appBarTheme: const AppBarTheme(
             centerTitle: true,
@@ -67,22 +70,29 @@ class LocalNewsAggregatorApp extends StatelessWidget {
           ),
           textTheme: const TextTheme(
             headlineLarge: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00796B),
-            ),
-            headlineMedium: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Color(0xFF00796B),
             ),
+            headlineMedium: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00796B),
+            ),
             titleLarge: TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xFF004D40),
             ),
           ),
         ),
+        builder: (context, child) {
+          final media = MediaQuery.of(context);
+          return MediaQuery(
+            data: media.copyWith(textScaler: const TextScaler.linear(0.85)),
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
         home: Consumer<AuthService>(
           builder: (context, authService, _) {
             if (authService.isLoading) {
@@ -91,9 +101,13 @@ class LocalNewsAggregatorApp extends StatelessWidget {
               );
             }
 
-            return authService.isAuthenticated
-                ? const MainScreen()
-                : const WelcomeScreen();
+            if (!authService.isAuthenticated) {
+              return const WelcomeScreen();
+            }
+
+            return authService.currentUser?.isAdmin == true
+                ? const AdminMainScreen()
+                : const MainScreen();
           },
         ),
       ),

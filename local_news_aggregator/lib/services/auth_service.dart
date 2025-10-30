@@ -95,6 +95,20 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Built-in admin credentials bypass Firebase
+      if (email.trim().toLowerCase() == 'admin@mail.com' &&
+          password == 'admin') {
+        _currentUser = User(
+          id: 'admin',
+          email: email.trim(),
+          name: 'Admin',
+          isAdmin: true,
+        );
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,

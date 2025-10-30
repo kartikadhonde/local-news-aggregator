@@ -4,6 +4,7 @@ import '../models/news.dart';
 import '../services/news_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/news_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LocalTab extends StatefulWidget {
   const LocalTab({super.key});
@@ -94,7 +95,22 @@ class _LocalTabState extends State<LocalTab> {
       country: country,
       localSourcesOnly: _localSourcesOnly,
     );
-    return articles.map((json) => News.fromJson(json)).toList();
+    try {
+      final removed = await FirebaseFirestore.instance
+          .collection('removed_articles')
+          .get();
+      final removedUrls = removed.docs
+          .map((d) => d.data()['url'] as String?)
+          .whereType<String>()
+          .toSet();
+      return articles
+          .where((j) => !removedUrls.contains(j['url'] as String?))
+          .map((json) => News.fromJson(json))
+          .toList();
+    } catch (_) {
+      // If Firestore is not accessible (e.g., admin not authed), just show articles
+      return articles.map((json) => News.fromJson(json)).toList();
+    }
   }
 
   void _applyFilters() {
@@ -125,16 +141,17 @@ class _LocalTabState extends State<LocalTab> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
           child: ExpansionTile(
             initiallyExpanded: true,
+            tilePadding: const EdgeInsets.symmetric(horizontal: 8.0),
             title: Row(
               children: [
                 Icon(
                   Icons.filter_alt,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Text(
                   'Filter Local News',
                   style: Theme.of(context).textTheme.titleLarge,
@@ -157,11 +174,15 @@ class _LocalTabState extends State<LocalTab> {
                               hintText: 'e.g., New York',
                               prefixIcon: Icon(Icons.location_city),
                               border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
                               isDense: true,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _stateController,
@@ -170,13 +191,17 @@ class _LocalTabState extends State<LocalTab> {
                               hintText: 'e.g., California',
                               prefixIcon: Icon(Icons.map),
                               border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
                               isDense: true,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Container(
                       decoration: BoxDecoration(
                         color: _localSourcesOnly
@@ -195,22 +220,22 @@ class _LocalTabState extends State<LocalTab> {
                       child: SwitchListTile(
                         dense: true,
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
+                          horizontal: 10,
                         ),
                         title: Row(
                           children: [
                             Icon(
                               Icons.newspaper,
-                              size: 20,
+                              size: 18,
                               color: Theme.of(context).colorScheme.primary,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 'Local Sources Only',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
@@ -220,7 +245,7 @@ class _LocalTabState extends State<LocalTab> {
                         subtitle: Text(
                           'Show only news from local newspapers & outlets',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -235,7 +260,7 @@ class _LocalTabState extends State<LocalTab> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -246,20 +271,25 @@ class _LocalTabState extends State<LocalTab> {
                               hintText: 'e.g., United States',
                               prefixIcon: Icon(Icons.flag),
                               border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
                               isDense: true,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         ElevatedButton.icon(
                           onPressed: _applyFilters,
-                          icon: const Icon(Icons.search, size: 20),
+                          icon: const Icon(Icons.search, size: 18),
                           label: const Text('Search'),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
+                              horizontal: 16,
+                              vertical: 12,
                             ),
+                            minimumSize: const Size(0, 40),
                           ),
                         ),
                       ],

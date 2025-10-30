@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/news.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/news_service.dart';
 import '../widgets/news_card.dart';
 
@@ -27,7 +28,21 @@ class _GlobalTabState extends State<GlobalTab> {
 
   Future<List<News>> _fetchGlobalNews() async {
     final articles = await NewsService().fetchGlobalNews();
-    return articles.map((json) => News.fromJson(json)).toList();
+    try {
+      final removed = await FirebaseFirestore.instance
+          .collection('removed_articles')
+          .get();
+      final removedUrls = removed.docs
+          .map((d) => d.data()['url'] as String?)
+          .whereType<String>()
+          .toSet();
+      return articles
+          .where((j) => !removedUrls.contains(j['url'] as String?))
+          .map((json) => News.fromJson(json))
+          .toList();
+    } catch (_) {
+      return articles.map((json) => News.fromJson(json)).toList();
+    }
   }
 
   @override

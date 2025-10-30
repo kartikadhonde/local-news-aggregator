@@ -2,6 +2,7 @@ class User {
   final String id;
   final String email;
   final String name;
+  final bool isAdmin;
   final String? profileImageUrl;
   final String? bio;
   final String? location;
@@ -14,6 +15,7 @@ class User {
     required this.id,
     required this.email,
     required this.name,
+    this.isAdmin = false,
     this.profileImageUrl,
     this.bio,
     this.location,
@@ -28,6 +30,7 @@ class User {
       'id': id,
       'email': email,
       'name': name,
+      'isAdmin': isAdmin,
       'profileImageUrl': profileImageUrl,
       'bio': bio,
       'location': location,
@@ -43,6 +46,7 @@ class User {
       id: json['id'] as String,
       email: json['email'] as String,
       name: json['name'] as String,
+      isAdmin: (json['isAdmin'] as bool?) ?? false,
       profileImageUrl: json['profileImageUrl'] as String?,
       bio: json['bio'] as String?,
       location: json['location'] as String?,
@@ -57,6 +61,7 @@ class User {
     String? id,
     String? email,
     String? name,
+    bool? isAdmin,
     String? profileImageUrl,
     String? bio,
     String? location,
@@ -69,6 +74,7 @@ class User {
       id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
+      isAdmin: isAdmin ?? this.isAdmin,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       bio: bio ?? this.bio,
       location: location ?? this.location,

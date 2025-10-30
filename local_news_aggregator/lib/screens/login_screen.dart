@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
 import 'main_screen.dart';
+import 'admin_main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,9 +37,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      final isAdmin = authService.currentUser?.isAdmin == true;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
+        MaterialPageRoute(
+          builder: (context) =>
+              isAdmin ? const AdminMainScreen() : const MainScreen(),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,10 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Icon(
                   Icons.newspaper,
-                  size: 100,
+                  size: 72,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
                 Text(
                   'Welcome Back!',
                   style: Theme.of(context).textTheme.headlineLarge,
@@ -84,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -93,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: 'Enter your email',
                     prefixIcon: const Icon(Icons.email),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   validator: (value) {
@@ -106,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -127,12 +132,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
+                    }
+                    final email = _emailController.text.trim().toLowerCase();
+                    if (email == 'admin@mail.com' && value == 'admin') {
+                      return null; // allow admin short password
                     }
                     if (value.length < 6) {
                       return 'Password must be at least 6 characters';
@@ -140,13 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: authService.isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: authService.isLoading
@@ -155,9 +164,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Login', style: TextStyle(fontSize: 16)),
+                      : const Text('Login', style: TextStyle(fontSize: 14)),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

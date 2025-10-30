@@ -64,16 +64,15 @@ class NewsHomeScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('News Aggregator'),
-          bottom: TabBar(
+          bottom: const TabBar(
             indicatorColor: Colors.white,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            tabs: const [
-              Tab(icon: Icon(Icons.location_on), text: 'Local'),
-              Tab(icon: Icon(Icons.public), text: 'Global'),
+            indicatorWeight: 2,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            labelPadding: EdgeInsets.symmetric(horizontal: 12),
+            tabs: [
+              Tab(icon: Icon(Icons.location_on, size: 18), text: 'Local'),
+              Tab(icon: Icon(Icons.public, size: 18), text: 'Global'),
             ],
           ),
         ),

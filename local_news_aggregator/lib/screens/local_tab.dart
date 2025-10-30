@@ -40,7 +40,6 @@ class _LocalTabState extends State<LocalTab> {
 
   Future<void> _initLocalNews() async {
     try {
-      // Check if user has default filters set
       final authService = context.read<AuthService>();
       final user = authService.currentUser;
 
@@ -49,8 +48,6 @@ class _LocalTabState extends State<LocalTab> {
       String? country;
       String countryCode = 'us';
 
-      // Use user's default filters if set; otherwise leave empty and
-      // wait for manual search (no device location).
       if (user?.defaultCity != null || user?.defaultState != null) {
         city = user?.defaultCity ?? '';
         state = user?.defaultState ?? '';
@@ -66,7 +63,6 @@ class _LocalTabState extends State<LocalTab> {
         _locationName = city != null && city.isNotEmpty
             ? '$city, $state'
             : state ?? '';
-        // If defaults provided, fetch immediately; otherwise wait for user input
         if ((city != null && city.isNotEmpty) ||
             (state != null && state.isNotEmpty) ||
             (country != null && country.isNotEmpty)) {
@@ -124,13 +120,10 @@ class _LocalTabState extends State<LocalTab> {
     });
   }
 
-  // Removed geolocation reset; manual input only
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Collapsible Filter Section
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: ExpansionTile(

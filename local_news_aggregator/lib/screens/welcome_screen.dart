@@ -32,7 +32,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
 
     try {
-      // Fetch top headlines from News API
       final response = await http.get(
         Uri.parse(
           'https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=$apiKey',

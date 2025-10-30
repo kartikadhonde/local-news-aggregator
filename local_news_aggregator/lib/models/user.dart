@@ -23,7 +23,6 @@ class User {
     this.defaultCountryCode,
   });
 
-  // Convert User to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -39,7 +38,6 @@ class User {
     };
   }
 
-  // Create User from JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
@@ -55,7 +53,6 @@ class User {
     );
   }
 
-  // Create a copy of User with updated fields
   User copyWith({
     String? id,
     String? email,

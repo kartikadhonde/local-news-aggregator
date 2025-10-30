@@ -24,10 +24,10 @@ class LocalNewsAggregatorApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF00796B), // Teal/Blue-Green
+            seedColor: const Color(0xFF00796B),
             primary: const Color(0xFF00796B),
-            secondary: const Color(0xFF26C6DA), // Cyan
-            tertiary: const Color(0xFF0277BD), // Deep Blue
+            secondary: const Color(0xFF26C6DA),
+            tertiary: const Color(0xFF0277BD),
             surface: Colors.white,
             surfaceContainerHighest: const Color(0xFFE0F2F1),
           ),

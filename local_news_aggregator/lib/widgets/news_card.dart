@@ -105,7 +105,8 @@ class NewsCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
-                    if (news.description != null)
+                    if (news.description != null &&
+                        news.description!.isNotEmpty)
                       Text(
                         news.description!,
                         style: TextStyle(color: Colors.grey[700], fontSize: 13),

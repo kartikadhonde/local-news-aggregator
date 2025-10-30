@@ -171,7 +171,6 @@ class ProfileScreen extends StatelessWidget {
                     title: const Text('Settings'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      // Navigate to settings
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Settings coming soon!')),
                       );
@@ -182,7 +181,6 @@ class ProfileScreen extends StatelessWidget {
                     title: const Text('Help & Support'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      // Navigate to help
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Help coming soon!')),
                       );

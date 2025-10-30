@@ -130,175 +130,149 @@ class _LocalTabState extends State<LocalTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Filter Section
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                Theme.of(context).colorScheme.surfaceContainerHighest,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Filter Local News',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const Spacer(),
-                  Tooltip(
-                    message: 'Set default filters in your profile',
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.info_outline,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text(
-                              '💡 Tip: Go to Profile > Edit to set default filters that will load automatically!',
-                            ),
-                            duration: const Duration(seconds: 4),
-                            action: SnackBarAction(
-                              label: 'Got it',
-                              onPressed: () {},
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _cityController,
-                      decoration: const InputDecoration(
-                        labelText: 'City',
-                        hintText: 'e.g., New York',
-                        prefixIcon: Icon(Icons.location_city),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _stateController,
-                      decoration: const InputDecoration(
-                        labelText: 'State/Province',
-                        hintText: 'e.g., California',
-                        prefixIcon: Icon(Icons.map),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Local Sources Only Toggle
-              Container(
-                decoration: BoxDecoration(
-                  color: _localSourcesOnly
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: 0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
+        // Collapsible Filter Section
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          child: ExpansionTile(
+            initiallyExpanded: true,
+            title: Row(
+              children: [
+                Icon(
+                  Icons.filter_alt,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                child: SwitchListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                  title: Row(
-                    children: [
-                      Icon(
-                        Icons.newspaper,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Local Sources Only',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.primary,
+                const SizedBox(width: 8),
+                Text(
+                  'Filter Local News',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _cityController,
+                            decoration: const InputDecoration(
+                              labelText: 'City',
+                              hintText: 'e.g., New York',
+                              prefixIcon: Icon(Icons.location_city),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _stateController,
+                            decoration: const InputDecoration(
+                              labelText: 'State/Province',
+                              hintText: 'e.g., California',
+                              prefixIcon: Icon(Icons.map),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _localSourcesOnly
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
                       ),
-                    ],
-                  ),
-                  subtitle: Text(
-                    'Show only news from local newspapers & outlets',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  value: _localSourcesOnly,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _localSourcesOnly = value;
-                      if (_localNews != null) {
-                        // Reload news with new filter
-                        _localNews = _fetchLocalNews();
-                      }
-                    });
-                  },
+                      child: SwitchListTile(
+                        dense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                        ),
+                        title: Row(
+                          children: [
+                            Icon(
+                              Icons.newspaper,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Local Sources Only',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        subtitle: Text(
+                          'Show only news from local newspapers & outlets',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        value: _localSourcesOnly,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _localSourcesOnly = value;
+                            if (_localNews != null) {
+                              _localNews = _fetchLocalNews();
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _countryController,
+                            decoration: const InputDecoration(
+                              labelText: 'Country',
+                              hintText: 'e.g., United States',
+                              prefixIcon: Icon(Icons.flag),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          onPressed: _applyFilters,
+                          icon: const Icon(Icons.search, size: 20),
+                          label: const Text('Search'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _countryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Country',
-                        hintText: 'e.g., United States',
-                        prefixIcon: Icon(Icons.flag),
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton.icon(
-                    onPressed: _applyFilters,
-                    icon: const Icon(Icons.search, size: 20),
-                    label: const Text('Search'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                  // Removed "Use My Location" button
-                ],
               ),
             ],
           ),

@@ -1,16 +1,79 @@
-# local_news_aggregator
+# Local News Aggregator - Firebase Integration
 
-A new Flutter project.
+A Flutter news app with Firebase authentication and cloud storage for user profiles.
 
-## Getting Started
+## Quick Start
 
-This project is a starting point for a Flutter application.
+### 1. Set up Firebase
+Follow the detailed instructions in [FIREBASE_SETUP.md](FIREBASE_SETUP.md)
 
-A few resources to get you started if this is your first Flutter project:
+Key steps:
+- Create a Firebase project
+- Enable Email/Password authentication  
+- Set up Cloud Firestore
+- Run `flutterfire configure` in this directory
+- Run `flutter pub get`
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 2. Run the app
+```bash
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+
+### Firebase-Powered Features
+- ✅ **User Registration** - Create account with email/password stored securely in Firebase Auth
+- ✅ **User Login** - Sign in with Firebase Authentication
+- ✅ **Profile Management** - User profiles stored in Cloud Firestore
+- ✅ **Profile Updates** - Edit profile and sync changes to Firebase in real-time
+- ✅ **Persistent Sessions** - Auto-login with Firebase auth state
+- ✅ **Secure Logout** - Sign out from Firebase Auth
+
+### News Features
+- 📰 Local news based on location filters
+- 🌍 Global news headlines
+- 🔍 Search and filter by city, state, country
+- 📌 Save default location preferences in Firebase
+
+## Architecture
+
+### Authentication Flow
+1. User registers → Firebase Auth creates account → Firestore document created
+2. User logs in → Firebase Auth validates → Firestore profile loaded
+3. User updates profile → Firestore document updated in real-time
+4. User logs out → Firebase Auth signs out → Local state cleared
+
+### Data Structure
+
+**Firestore Collection: `users`**
+```javascript
+users/{userId} {
+  id: string
+  email: string
+  name: string
+  bio: string?
+  location: string?
+  profileImageUrl: string?
+  defaultCity: string?
+  defaultState: string?
+  defaultCountry: string?
+  defaultCountryCode: string?
+}
+```
+
+### Security
+- Firebase Auth handles password hashing and security
+- Firestore rules ensure users can only access their own data
+- No passwords stored in Firestore
+- Auth tokens managed by Firebase SDK
+
+## Configuration Files
+
+After running `flutterfire configure`, you'll have:
+- `lib/firebase_options.dart` - Auto-generated Firebase config
+- `android/app/google-services.json` - Android config (don't commit)
+- `ios/Runner/GoogleService-Info.plist` - iOS config (don't commit)
+
+## Support
+
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for troubleshooting and detailed setup instructions.

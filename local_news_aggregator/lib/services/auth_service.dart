@@ -1,9 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user.dart';
 
 class AuthService extends ChangeNotifier {
+  final firebase_auth.FirebaseAuth _firebaseAuth =
+      firebase_auth.FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   User? _currentUser;
   bool _isLoading = false;
 
@@ -11,17 +15,25 @@ class AuthService extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _currentUser != null;
 
-  // Initialize and check if user is already logged in
   Future<void> init() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userJson = prefs.getString('current_user');
+      _firebaseAuth.authStateChanges().listen((
+        firebase_auth.User? firebaseUser,
+      ) async {
+        if (firebaseUser != null) {
+          await _loadUserProfile(firebaseUser.uid);
+        } else {
+          _currentUser = null;
+          notifyListeners();
+        }
+      });
 
-      if (userJson != null) {
-        _currentUser = User.fromJson(json.decode(userJson));
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser != null) {
+        await _loadUserProfile(firebaseUser.uid);
       }
     } catch (e) {
       debugPrint('Error loading user: $e');
@@ -31,7 +43,18 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Register a new user
+  Future<void> _loadUserProfile(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        _currentUser = User.fromJson({...doc.data()!, 'id': uid});
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading user profile: $e');
+    }
+  }
+
   Future<bool> register({
     required String email,
     required String password,
@@ -41,43 +64,24 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Check if user already exists
-      final prefs = await SharedPreferences.getInstance();
-      final usersJson = prefs.getString('users') ?? '[]';
-      final users = (json.decode(usersJson) as List)
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
-
-      // Check for existing email
-      if (users.any((u) => u['email'] == email)) {
-        _isLoading = false;
-        notifyListeners();
-        return false; // User already exists
-      }
-
-      // Create new user
-      final newUser = User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+      final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
-        name: name,
+        password: password,
       );
 
-      // Store user credentials
-      users.add({
-        ...newUser.toJson(),
-        'password': password, // In production, use proper hashing
-      });
+      final uid = userCredential.user!.uid;
+      final newUser = User(id: uid, email: email, name: name);
 
-      await prefs.setString('users', json.encode(users));
-      await prefs.setString('current_user', json.encode(newUser.toJson()));
-
+      await _firestore.collection('users').doc(uid).set(newUser.toJson());
       _currentUser = newUser;
       _isLoading = false;
       notifyListeners();
       return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      debugPrint('Registration error: ${e.message}');
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       debugPrint('Registration error: $e');
       _isLoading = false;
@@ -86,45 +90,25 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Login user
   Future<bool> login({required String email, required String password}) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      final prefs = await SharedPreferences.getInstance();
-      final usersJson = prefs.getString('users') ?? '[]';
-      final users = (json.decode(usersJson) as List)
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
-
-      // Find user
-      final userMap = users.firstWhere(
-        (u) => u['email'] == email && u['password'] == password,
-        orElse: () => {},
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
 
-      if (userMap.isEmpty) {
-        _isLoading = false;
-        notifyListeners();
-        return false; // Invalid credentials
-      }
-
-      // Remove password before storing current user
-      userMap.remove('password');
-      _currentUser = User.fromJson(userMap);
-
-      await prefs.setString(
-        'current_user',
-        json.encode(_currentUser!.toJson()),
-      );
-
+      await _loadUserProfile(userCredential.user!.uid);
       _isLoading = false;
       notifyListeners();
       return true;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      debugPrint('Login error: ${e.message}');
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } catch (e) {
       debugPrint('Login error: $e');
       _isLoading = false;
@@ -133,11 +117,9 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Logout user
   Future<void> logout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('current_user');
+      await _firebaseAuth.signOut();
       _currentUser = null;
       notifyListeners();
     } catch (e) {
@@ -145,7 +127,6 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  // Update user profile
   Future<bool> updateProfile({
     String? name,
     String? bio,
@@ -162,7 +143,6 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Update current user
       _currentUser = _currentUser!.copyWith(
         name: name ?? _currentUser!.name,
         bio: bio ?? _currentUser!.bio,
@@ -175,25 +155,10 @@ class AuthService extends ChangeNotifier {
             defaultCountryCode ?? _currentUser!.defaultCountryCode,
       );
 
-      // Update in storage
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-        'current_user',
-        json.encode(_currentUser!.toJson()),
-      );
-
-      // Update in users list
-      final usersJson = prefs.getString('users') ?? '[]';
-      final users = (json.decode(usersJson) as List)
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
-
-      final userIndex = users.indexWhere((u) => u['id'] == _currentUser!.id);
-      if (userIndex != -1) {
-        final password = users[userIndex]['password'];
-        users[userIndex] = {...(_currentUser!.toJson()), 'password': password};
-        await prefs.setString('users', json.encode(users));
-      }
+      await _firestore
+          .collection('users')
+          .doc(_currentUser!.id)
+          .update(_currentUser!.toJson());
 
       _isLoading = false;
       notifyListeners();

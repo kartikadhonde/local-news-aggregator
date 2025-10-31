@@ -69,54 +69,38 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Send Feedback')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'We value your feedback!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Help us improve by sharing your thoughts.',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 24),
+            const Text('Help us improve by sharing your thoughts.'),
+            const SizedBox(height: 16),
             TextField(
               controller: _controller,
-              maxLines: 8,
+              maxLines: 6,
               maxLength: 500,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Enter your feedback here...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 onPressed: _submitting ? null : _submit,
-                icon: _submitting
+                child: _submitting
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.send),
-                label: Text(
-                  _submitting ? 'Sending...' : 'Send Feedback',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                    : const Text('Send Feedback'),
               ),
             ),
           ],

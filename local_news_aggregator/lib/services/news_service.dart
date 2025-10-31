@@ -18,29 +18,14 @@ class NewsService {
 
       if (city != null && city.isNotEmpty) {
         String locationQuery = _buildLocationQuery(city, state, country);
-
         url =
-            '$_baseUrl/everything?'
-            'q=$locationQuery&'
-            'searchIn=title,description,content&'
-            'language=en&'
-            'sortBy=publishedAt&'
-            'pageSize=100&'
-            'apiKey=$_apiKey';
+            '$_baseUrl/everything?q=$locationQuery&searchIn=title,description,content&language=en&sortBy=publishedAt&pageSize=100&apiKey=$_apiKey';
       } else if (state != null && state.isNotEmpty) {
         String stateQuery = Uri.encodeComponent('"$state"');
-        if (country != null && country.isNotEmpty) {
+        if (country != null && country.isNotEmpty)
           stateQuery = '$stateQuery+AND+${Uri.encodeComponent('"$country"')}';
-        }
-
         url =
-            '$_baseUrl/everything?'
-            'q=$stateQuery&'
-            'searchIn=title,description,content&'
-            'language=en&'
-            'sortBy=publishedAt&'
-            'pageSize=100&'
-            'apiKey=$_apiKey';
+            '$_baseUrl/everything?q=$stateQuery&searchIn=title,description,content&language=en&sortBy=publishedAt&pageSize=100&apiKey=$_apiKey';
       } else {
         url = '$_baseUrl/top-headlines?country=$countryCode&apiKey=$_apiKey';
       }
@@ -81,18 +66,12 @@ class NewsService {
 
   String _buildLocationQuery(String city, String? state, String? country) {
     String query = Uri.encodeComponent('"$city"');
-
-    if (state != null && state.isNotEmpty) {
+    if (state != null && state.isNotEmpty)
       query = '$query+AND+${Uri.encodeComponent('"$state"')}';
-    }
-
-    if (country != null && country.isNotEmpty) {
+    if (country != null && country.isNotEmpty)
       query = '$query+AND+${Uri.encodeComponent('"$country"')}';
-    }
-
-    query = '$query+AND+(${Uri.encodeComponent('local OR news OR city')}';
-    query = '$query+OR+${Uri.encodeComponent('municipal OR metro OR region')})';
-
+    query =
+        '$query+AND+(${Uri.encodeComponent('local OR news OR city')}+OR+${Uri.encodeComponent('municipal OR metro OR region')})';
     return query;
   }
 
@@ -113,38 +92,23 @@ class NewsService {
           .toString()
           .toLowerCase();
 
-      if (localSourcesOnly) {
-        bool isLocalSource = _isLocalNewsSource(source, city.toLowerCase());
-        if (!isLocalSource) {
-          return false;
-        }
-      }
+      if (localSourcesOnly && !_isLocalNewsSource(source, city.toLowerCase()))
+        return false;
 
       String allText = '$title $description $content $source';
       String cityLower = city.toLowerCase();
 
-      bool hasCityInTitle = title.contains(cityLower);
-      bool hasCityInDescription = description.contains(cityLower);
-      bool hasCityInContent = content.contains(cityLower);
-
-      if (hasCityInTitle || hasCityInDescription) {
+      if (title.contains(cityLower) || description.contains(cityLower))
         return true;
-      }
 
       if (state != null && state.isNotEmpty) {
-        String stateLower = state.toLowerCase();
-        bool hasState = allText.contains(stateLower);
-        if (hasCityInContent && hasState) {
+        if (content.contains(cityLower) &&
+            allText.contains(state.toLowerCase()))
           return true;
-        }
       }
 
-      bool isLocalSource = _isLocalNewsSource(source, cityLower);
-      if (isLocalSource && hasCityInContent) {
-        return true;
-      }
-
-      return false;
+      return _isLocalNewsSource(source, cityLower) &&
+          content.contains(cityLower);
     }).toList();
   }
 
@@ -162,14 +126,7 @@ class NewsService {
       'daily',
       city,
     ];
-
-    for (String indicator in localIndicators) {
-      if (source.contains(indicator)) {
-        return true;
-      }
-    }
-
-    return false;
+    return localIndicators.any((indicator) => source.contains(indicator));
   }
 
   Future<List<Map<String, dynamic>>> fetchGlobalNews() async {

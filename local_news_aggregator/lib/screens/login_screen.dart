@@ -65,17 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.newspaper,
-                  size: 72,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Welcome Back!',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                  textAlign: TextAlign.center,
-                ),
+                const Icon(Icons.newspaper, size: 64),
+                const SizedBox(height: 16),
+                const Text('Welcome Back!', style: TextStyle(fontSize: 24)),
                 const SizedBox(height: 24),
                 buildTextField(
                   controller: _emailController,
@@ -83,13 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: Icons.email,
                   hint: 'Enter your email',
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) return 'Invalid email';
-                    return null;
-                  },
+                  validator: validateEmail,
                 ),
                 const SizedBox(height: 12),
                 buildTextField(
@@ -107,12 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
+                  validator: validatePassword,
                 ),
                 const SizedBox(height: 16),
                 buildLoadingButton(

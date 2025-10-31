@@ -3,6 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AnalyticsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Future<int> _getCount(String collection, {Query? query}) async {
+    try {
+      final snapshot = await (query ?? _firestore.collection(collection)).get();
+      return snapshot.docs.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   Future<void> logSearch(String query, String userId) async {
     try {
       await _firestore.collection('searches').add({
@@ -40,49 +49,24 @@ class AnalyticsService {
         });
   }
 
-  Future<int> getTotalUsers() async {
-    try {
-      final snapshot = await _firestore.collection('users').get();
-      return snapshot.docs.length;
-    } catch (e) {
-      return 0;
-    }
-  }
+  Future<int> getTotalUsers() => _getCount('users');
 
-  Future<int> getTotalFeedback() async {
-    try {
-      final snapshot = await _firestore.collection('feedback').get();
-      return snapshot.docs.length;
-    } catch (e) {
-      return 0;
-    }
-  }
+  Future<int> getTotalFeedback() => _getCount('feedback');
 
-  Future<int> getNewFeedbackCount() async {
-    try {
-      final snapshot = await _firestore
-          .collection('feedback')
-          .where('status', isEqualTo: 'new')
-          .get();
-      return snapshot.docs.length;
-    } catch (e) {
-      return 0;
-    }
-  }
+  Future<int> getNewFeedbackCount() => _getCount(
+    'feedback',
+    query: _firestore.collection('feedback').where('status', isEqualTo: 'new'),
+  );
 
-  Future<int> getRecentUsers() async {
-    try {
-      final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
-      final snapshot = await _firestore
-          .collection('users')
-          .where(
-            'createdAt',
-            isGreaterThanOrEqualTo: Timestamp.fromDate(sevenDaysAgo),
-          )
-          .get();
-      return snapshot.docs.length;
-    } catch (e) {
-      return 0;
-    }
-  }
+  Future<int> getRecentUsers() => _getCount(
+    'users',
+    query: _firestore
+        .collection('users')
+        .where(
+          'createdAt',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(
+            DateTime.now().subtract(const Duration(days: 7)),
+          ),
+        ),
+  );
 }

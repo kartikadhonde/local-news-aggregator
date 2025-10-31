@@ -8,10 +8,40 @@ class AdminReviewFeedbackScreen extends StatelessWidget {
   String _formatDate(dynamic timestamp) {
     if (timestamp == null) return 'Just now';
     try {
-      final DateTime date = (timestamp as Timestamp).toDate();
-      return DateFormat('MMM dd, yyyy • hh:mm a').format(date);
+      return DateFormat(
+        'MMM dd, yyyy • hh:mm a',
+      ).format((timestamp as Timestamp).toDate());
     } catch (e) {
       return 'Unknown date';
+    }
+  }
+
+  Future<void> _updateStatus(
+    BuildContext context,
+    DocumentReference ref,
+    String action,
+  ) async {
+    try {
+      if (action == 'delete') {
+        await ref.delete();
+      } else {
+        await ref.update({'status': action == 'resolve' ? 'resolved' : 'new'});
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              action == 'delete' ? 'Feedback deleted' : 'Feedback updated',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
   }
 
@@ -54,21 +84,9 @@ class AdminReviewFeedbackScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.feedback_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.feedback_outlined, size: 48, color: Colors.grey),
                 const SizedBox(height: 16),
-                Text(
-                  'No feedback yet',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'User feedback will appear here',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                ),
+                const Text('No feedback yet'),
               ],
             ),
           );
@@ -84,73 +102,28 @@ class AdminReviewFeedbackScreen extends StatelessWidget {
             final userEmail = data['userEmail'] ?? 'Unknown Email';
 
             return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              elevation: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: ExpansionTile(
                 leading: Icon(
                   status == 'resolved' ? Icons.check_circle : Icons.pending,
-                  color: status == 'resolved' ? Colors.green : Colors.orange,
-                  size: 32,
                 ),
-                title: Text(
-                  userName,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
+                title: Text(userName),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 4),
-                    Text(
-                      userEmail,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
+                    Text(userEmail, style: const TextStyle(fontSize: 12)),
                     const SizedBox(height: 4),
                     Text(
                       _formatDate(data['createdAt']),
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      style: const TextStyle(fontSize: 11),
                     ),
                   ],
                 ),
                 trailing: PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
-                  onSelected: (value) async {
-                    try {
-                      if (value == 'resolve') {
-                        await docs[index].reference.update({
-                          'status': 'resolved',
-                        });
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Feedback marked as resolved'),
-                            ),
-                          );
-                        }
-                      } else if (value == 'unresolve') {
-                        await docs[index].reference.update({'status': 'new'});
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Feedback marked as new'),
-                            ),
-                          );
-                        }
-                      } else if (value == 'delete') {
-                        await docs[index].reference.delete();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Feedback deleted')),
-                          );
-                        }
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.toString()}')),
-                        );
-                      }
-                    }
-                  },
+                  onSelected: (value) =>
+                      _updateStatus(context, docs[index].reference, value),
                   itemBuilder: (context) => [
                     if (status != 'resolved')
                       const PopupMenuItem(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'local_tab.dart';
-import 'global_tab.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -59,25 +58,9 @@ class NewsHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('News Aggregator'),
-          bottom: const TabBar(
-            indicatorColor: Colors.white,
-            indicatorWeight: 2,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            labelPadding: EdgeInsets.symmetric(horizontal: 12),
-            tabs: [
-              Tab(icon: Icon(Icons.location_on, size: 18), text: 'Local'),
-              Tab(icon: Icon(Icons.public, size: 18), text: 'Global'),
-            ],
-          ),
-        ),
-        body: const TabBarView(children: [LocalTab(), GlobalTab()]),
-      ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Local News')),
+      body: const LocalTab(),
     );
   }
 }

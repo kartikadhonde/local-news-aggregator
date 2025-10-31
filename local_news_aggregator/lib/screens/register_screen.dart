@@ -70,32 +70,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.person_add,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                const Icon(Icons.person_add, size: 64),
+                const SizedBox(height: 16),
+                const Text('Create Account', style: TextStyle(fontSize: 24)),
                 const SizedBox(height: 24),
-                Text(
-                  'Create Account',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
                 buildTextField(
                   controller: _nameController,
                   label: 'Full Name',
                   icon: Icons.person,
                   hint: 'Enter your full name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    if (value.length < 3) {
-                      return 'Name must be at least 3 characters';
-                    }
-                    return null;
-                  },
+                  validator: validateName,
                 ),
                 const SizedBox(height: 16),
                 buildTextField(
@@ -104,13 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.email,
                   hint: 'Enter your email',
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) return 'Invalid email';
-                    return null;
-                  },
+                  validator: validateEmail,
                 ),
                 const SizedBox(height: 16),
                 buildTextField(
@@ -128,15 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
+                  validator: validatePasswordStrength,
                 ),
                 const SizedBox(height: 16),
                 buildTextField(
@@ -155,15 +125,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       () => _obscureConfirmPassword = !_obscureConfirmPassword,
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
+                  validator: (v) =>
+                      validateConfirmPassword(v, _passwordController.text),
                 ),
                 const SizedBox(height: 24),
                 buildLoadingButton(

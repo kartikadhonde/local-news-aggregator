@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../widgets/common_widgets.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -18,7 +19,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _defaultCityController;
   late TextEditingController _defaultStateController;
   late TextEditingController _defaultCountryController;
-  late TextEditingController _defaultCountryCodeController;
 
   @override
   void initState() {
@@ -39,9 +39,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _defaultCountryController = TextEditingController(
       text: user?.defaultCountry ?? '',
     );
-    _defaultCountryCodeController = TextEditingController(
-      text: user?.defaultCountryCode ?? 'us',
-    );
   }
 
   @override
@@ -53,7 +50,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _defaultCityController.dispose();
     _defaultStateController.dispose();
     _defaultCountryController.dispose();
-    _defaultCountryCodeController.dispose();
     super.dispose();
   }
 
@@ -77,29 +73,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       defaultCountry: _defaultCountryController.text.trim().isEmpty
           ? null
           : _defaultCountryController.text.trim(),
-      defaultCountryCode: _defaultCountryCodeController.text.trim().isEmpty
-          ? null
-          : _defaultCountryCodeController.text.trim(),
     );
 
     if (!mounted) return;
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to update profile'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    showMessage(
+      context,
+      success ? 'Profile updated successfully!' : 'Failed to update profile',
+      isError: !success,
+    );
+    if (success) Navigator.pop(context);
   }
 
   @override
@@ -167,33 +149,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 32),
                     TextFormField(
                       controller: _nameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Full Name',
-                        prefixIcon: const Icon(Icons.person),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        if (value.length < 3) {
-                          return 'Name must be at least 3 characters';
-                        }
-                        return null;
-                      },
+                      validator: validateName,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _locationController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Location',
                         hintText: 'e.g., New York, USA',
-                        prefixIcon: const Icon(Icons.location_on),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.location_on),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -201,14 +171,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       controller: _bioController,
                       maxLines: 4,
                       maxLength: 200,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Bio',
                         hintText: 'Tell us about yourself',
-                        prefixIcon: const Icon(Icons.info),
+                        prefixIcon: Icon(Icons.info),
                         alignLabelWithHint: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -238,58 +206,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _defaultCityController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Default City',
                         hintText: 'e.g., New York',
-                        prefixIcon: const Icon(Icons.location_city),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.location_city),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _defaultStateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Default State/Province',
                         hintText: 'e.g., California',
-                        prefixIcon: const Icon(Icons.map),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.map),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _defaultCountryController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Default Country',
                         hintText: 'e.g., United States',
-                        prefixIcon: const Icon(Icons.flag),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        prefixIcon: Icon(Icons.flag),
+                        border: OutlineInputBorder(),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _defaultCountryCodeController,
-                      decoration: InputDecoration(
-                        labelText: 'Country Code',
-                        hintText: 'e.g., us, gb, in',
-                        prefixIcon: const Icon(Icons.code),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            value.length != 2) {
-                          return 'Country code must be 2 characters';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
@@ -298,9 +240,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: const Text('Save Changes'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
                       ),
                     ),
                   ],

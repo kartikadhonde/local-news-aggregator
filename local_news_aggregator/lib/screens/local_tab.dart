@@ -64,9 +64,9 @@ class _LocalTabState extends State<LocalTab> {
         _locationName = city != null && city.isNotEmpty
             ? '$city, $state'
             : state ?? '';
-        if ((city != null && city.isNotEmpty) ||
-            (state != null && state.isNotEmpty) ||
-            (country != null && country.isNotEmpty)) {
+        if ((city?.isNotEmpty ?? false) ||
+            (state?.isNotEmpty ?? false) ||
+            (country?.isNotEmpty ?? false)) {
           _localNews = _fetchLocalNews();
         }
       });
@@ -95,6 +95,12 @@ class _LocalTabState extends State<LocalTab> {
       country: country,
       localSourcesOnly: _localSourcesOnly,
     );
+    return _filterRemovedArticles(articles);
+  }
+
+  Future<List<News>> _filterRemovedArticles(
+    List<Map<String, dynamic>> articles,
+  ) async {
     try {
       final removed = await FirebaseFirestore.instance
           .collection('removed_articles')
@@ -108,30 +114,20 @@ class _LocalTabState extends State<LocalTab> {
           .map((json) => News.fromJson(json))
           .toList();
     } catch (_) {
-      // If Firestore is not accessible (e.g., admin not authed), just show articles
       return articles.map((json) => News.fromJson(json)).toList();
     }
   }
 
   void _applyFilters() {
     setState(() {
-      String locationParts = '';
-      if (_cityController.text.trim().isNotEmpty) {
-        locationParts = _cityController.text.trim();
-      }
-      if (_stateController.text.trim().isNotEmpty) {
-        locationParts += locationParts.isNotEmpty
-            ? ', ${_stateController.text.trim()}'
-            : _stateController.text.trim();
-      }
-      if (_countryController.text.trim().isNotEmpty) {
-        locationParts += locationParts.isNotEmpty
-            ? ', ${_countryController.text.trim()}'
-            : _countryController.text.trim();
-      }
-      _locationName = locationParts.isNotEmpty
-          ? locationParts
-          : 'Custom Filter';
+      List<String> parts = [];
+      if (_cityController.text.trim().isNotEmpty)
+        parts.add(_cityController.text.trim());
+      if (_stateController.text.trim().isNotEmpty)
+        parts.add(_stateController.text.trim());
+      if (_countryController.text.trim().isNotEmpty)
+        parts.add(_countryController.text.trim());
+      _locationName = parts.isNotEmpty ? parts.join(', ') : 'Custom Filter';
       _localNews = _fetchLocalNews();
     });
   }

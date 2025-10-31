@@ -28,6 +28,12 @@ class _GlobalTabState extends State<GlobalTab> {
 
   Future<List<News>> _fetchGlobalNews() async {
     final articles = await NewsService().fetchGlobalNews();
+    return _filterRemovedArticles(articles);
+  }
+
+  Future<List<News>> _filterRemovedArticles(
+    List<Map<String, dynamic>> articles,
+  ) async {
     try {
       final removed = await FirebaseFirestore.instance
           .collection('removed_articles')

@@ -1,5 +1,35 @@
 import 'package:flutter/material.dart';
 
+// Validation helpers
+String? validateEmail(String? value) {
+  if (value == null || value.isEmpty) return 'Please enter your email';
+  if (!value.contains('@')) return 'Invalid email';
+  return null;
+}
+
+String? validatePassword(String? value) {
+  if (value == null || value.isEmpty) return 'Please enter your password';
+  return null;
+}
+
+String? validateName(String? value) {
+  if (value == null || value.isEmpty) return 'Please enter your name';
+  if (value.length < 3) return 'Name must be at least 3 characters';
+  return null;
+}
+
+String? validatePasswordStrength(String? value) {
+  if (value == null || value.isEmpty) return 'Please enter your password';
+  if (value.length < 6) return 'Password must be at least 6 characters';
+  return null;
+}
+
+String? validateConfirmPassword(String? value, String password) {
+  if (value == null || value.isEmpty) return 'Please confirm your password';
+  if (value != password) return 'Passwords do not match';
+  return null;
+}
+
 // Reusable text input field
 Widget buildTextField({
   required TextEditingController controller,
@@ -24,7 +54,7 @@ Widget buildTextField({
       hintText: hint,
       prefixIcon: Icon(icon),
       suffixIcon: suffixIcon,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      border: const OutlineInputBorder(),
     ),
     validator: validator,
   );
@@ -41,7 +71,6 @@ Widget buildLoadingButton({
     onPressed: isLoading ? null : onPressed,
     style: ElevatedButton.styleFrom(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     child: isLoading
         ? const SizedBox(
@@ -92,15 +121,11 @@ Widget buildError(String message, VoidCallback onRetry) {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.error_outline, size: 64, color: Colors.orange),
+        const Icon(Icons.error_outline, size: 48),
         const SizedBox(height: 16),
-        Text(message, style: const TextStyle(fontSize: 18)),
-        const SizedBox(height: 24),
-        ElevatedButton.icon(
-          onPressed: onRetry,
-          icon: const Icon(Icons.refresh),
-          label: const Text('Retry'),
-        ),
+        Text(message),
+        const SizedBox(height: 16),
+        ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
       ],
     ),
   );
@@ -112,9 +137,9 @@ Widget buildEmptyState(String message, IconData icon) {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 64, color: Colors.grey[400]),
+        Icon(icon, size: 48, color: Colors.grey),
         const SizedBox(height: 16),
-        Text(message, style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+        Text(message),
       ],
     ),
   );

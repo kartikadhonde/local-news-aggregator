@@ -68,7 +68,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.feedback, color: Colors.teal),
+            leading: const Icon(Icons.feedback),
             title: const Text('Send Feedback'),
             onTap: () => Navigator.push(
               context,
@@ -76,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
+            leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () => _showLogoutDialog(context),
           ),
@@ -87,14 +87,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildAvatar(String name) {
     final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return Text(
-      initial,
-      style: const TextStyle(
-        fontSize: 40,
-        fontWeight: FontWeight.bold,
-        color: Colors.blue,
-      ),
-    );
+    return Text(initial, style: const TextStyle(fontSize: 32));
   }
 
   Widget _buildInfoCard(
@@ -105,11 +98,11 @@ class ProfileScreen extends StatelessWidget {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
-            Icon(icon, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 16),
+            Icon(icon),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,13 +112,7 @@ class ProfileScreen extends StatelessWidget {
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(value, style: const TextStyle(fontSize: 14)),
                 ],
               ),
             ),

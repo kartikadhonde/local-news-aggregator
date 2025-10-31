@@ -81,38 +81,34 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Stats Cards - Smaller and cleaner
+                    // Stats Cards
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.6,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: 2,
                       children: [
                         _StatCard(
                           title: 'Total Users',
                           value: _totalUsers.toString(),
                           icon: Icons.people,
-                          color: Colors.blue,
                         ),
                         _StatCard(
                           title: 'New (7 days)',
                           value: _recentUsers.toString(),
                           icon: Icons.person_add,
-                          color: Colors.green,
                         ),
                         _StatCard(
                           title: 'Total Feedback',
                           value: _totalFeedback.toString(),
                           icon: Icons.feedback,
-                          color: Colors.orange,
                         ),
                         _StatCard(
                           title: 'Pending',
                           value: _newFeedback.toString(),
                           icon: Icons.pending,
-                          color: Colors.red,
                         ),
                       ],
                     ),
@@ -145,31 +141,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return Card(
                             child: Padding(
-                              padding: const EdgeInsets.all(40),
+                              padding: const EdgeInsets.all(32),
                               child: Center(
                                 child: Column(
                                   children: [
                                     Icon(
                                       Icons.search_off,
-                                      size: 40,
-                                      color: Colors.grey[400],
+                                      size: 32,
+                                      color: Colors.grey,
                                     ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'No search data yet',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'User searches will appear here',
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 12,
-                                      ),
-                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text('No search data yet'),
                                   ],
                                 ),
                               ),
@@ -180,7 +162,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         final topSearches = snapshot.data!;
 
                         return Card(
-                          elevation: 1,
                           child: ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -193,54 +174,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                               final count = search['count'] as int;
 
                               return ListTile(
-                                dense: true,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 4,
-                                ),
-                                leading: Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: Colors.teal[100],
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.teal,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                title: Text(
-                                  query,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.teal[50],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    '$count',
-                                    style: TextStyle(
-                                      color: Colors.teal[700],
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ),
+                                leading: Text('${index + 1}.'),
+                                title: Text(query),
+                                trailing: Text('$count searches'),
                               );
                             },
                           ),
@@ -259,42 +195,32 @@ class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
-  final Color color;
 
   const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
-    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 22),
+            Icon(icon, size: 24),
             const SizedBox(height: 4),
             Text(
               value,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 2),
             Text(
               title,
-              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+              style: const TextStyle(fontSize: 11),
               textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

@@ -21,33 +21,33 @@ class NewsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAdmin = context.watch<AuthService>().currentUser?.isAdmin == true;
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         onTap: () {
           if (news.url != null) {
             _launchUrl(news.url!);
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (news.urlToImage != null)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                   child: Image.network(
                     news.urlToImage!,
-                    width: 80,
-                    height: 80,
+                    width: 70,
+                    height: 70,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        width: 80,
-                        height: 80,
+                        width: 70,
+                        height: 70,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -59,12 +59,12 @@ class NewsCard extends StatelessWidget {
                               ).colorScheme.secondary.withValues(alpha: 0.3),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(
                           Icons.image_not_supported,
                           color: Theme.of(context).colorScheme.primary,
-                          size: 32,
+                          size: 24,
                         ),
                       );
                     },
@@ -72,8 +72,8 @@ class NewsCard extends StatelessWidget {
                 )
               else
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -85,15 +85,15 @@ class NewsCard extends StatelessWidget {
                         ).colorScheme.secondary.withValues(alpha: 0.2),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
                     Icons.article,
                     color: Theme.of(context).colorScheme.primary,
-                    size: 28,
+                    size: 24,
                   ),
                 ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,10 +102,11 @@ class NewsCard extends StatelessWidget {
                       news.title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 13,
                         color: Theme.of(context).colorScheme.onSurface,
+                        height: 1.3,
                       ),
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
@@ -113,7 +114,11 @@ class NewsCard extends StatelessWidget {
                         news.description!.isNotEmpty)
                       Text(
                         news.description!,
-                        style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 11,
+                          height: 1.3,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -122,7 +127,7 @@ class NewsCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.source,
-                          size: 14,
+                          size: 12,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 4),
@@ -131,7 +136,7 @@ class NewsCard extends StatelessWidget {
                             news.source ?? 'Unknown source',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.primary,
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
@@ -141,31 +146,39 @@ class NewsCard extends StatelessWidget {
                         if (news.url != null)
                           Icon(
                             Icons.open_in_new,
-                            size: 16,
+                            size: 14,
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         if (isAdmin) ...[
-                          const SizedBox(width: 8),
-                          IconButton(
-                            icon: const Icon(Icons.delete_forever, size: 18),
-                            color: Colors.red,
-                            tooltip: 'Remove from feed',
-                            onPressed: () async {
-                              if (news.url == null) return;
-                              await FirebaseFirestore.instance
-                                  .collection('removed_articles')
-                                  .doc(Uri.encodeComponent(news.url!))
-                                  .set({
-                                    'url': news.url,
-                                    'title': news.title,
-                                    'removedAt': FieldValue.serverTimestamp(),
-                                  });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Article removed'),
-                                ),
-                              );
-                            },
+                          const SizedBox(width: 4),
+                          SizedBox(
+                            width: 32,
+                            height: 32,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.delete_forever, size: 16),
+                              color: Colors.red,
+                              tooltip: 'Remove from feed',
+                              onPressed: () async {
+                                if (news.url == null) return;
+                                await FirebaseFirestore.instance
+                                    .collection('removed_articles')
+                                    .doc(Uri.encodeComponent(news.url!))
+                                    .set({
+                                      'url': news.url,
+                                      'title': news.title,
+                                      'removedAt': FieldValue.serverTimestamp(),
+                                    });
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Article removed'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ],
                       ],

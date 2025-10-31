@@ -143,24 +143,32 @@ class _LocalTabState extends State<LocalTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
           child: ExpansionTile(
-            initiallyExpanded: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 8.0),
+            initiallyExpanded: false,
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 0,
+            ),
+            dense: true,
             title: Row(
               children: [
                 Icon(
                   Icons.filter_alt,
                   color: Theme.of(context).colorScheme.primary,
+                  size: 18,
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Text(
                   'Filter Local News',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -169,10 +177,13 @@ class _LocalTabState extends State<LocalTab> {
                         Expanded(
                           child: TextField(
                             controller: _cityController,
+                            style: const TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                               labelText: 'City',
+                              labelStyle: TextStyle(fontSize: 12),
                               hintText: 'e.g., New York',
-                              prefixIcon: Icon(Icons.location_city),
+                              hintStyle: TextStyle(fontSize: 12),
+                              prefixIcon: Icon(Icons.location_city, size: 18),
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -186,10 +197,13 @@ class _LocalTabState extends State<LocalTab> {
                         Expanded(
                           child: TextField(
                             controller: _stateController,
+                            style: const TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                               labelText: 'State/Province',
+                              labelStyle: TextStyle(fontSize: 12),
                               hintText: 'e.g., California',
-                              prefixIcon: Icon(Icons.map),
+                              hintStyle: TextStyle(fontSize: 12),
+                              prefixIcon: Icon(Icons.map, size: 18),
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -209,7 +223,7 @@ class _LocalTabState extends State<LocalTab> {
                                 context,
                               ).colorScheme.primary.withValues(alpha: 0.1)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                         border: Border.all(
                           color: Theme.of(
                             context,
@@ -221,12 +235,13 @@ class _LocalTabState extends State<LocalTab> {
                         dense: true,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 10,
+                          vertical: 0,
                         ),
                         title: Row(
                           children: [
                             Icon(
                               Icons.newspaper,
-                              size: 18,
+                              size: 16,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                             const SizedBox(width: 6),
@@ -235,7 +250,7 @@ class _LocalTabState extends State<LocalTab> {
                                 'Local Sources Only',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
@@ -245,7 +260,7 @@ class _LocalTabState extends State<LocalTab> {
                         subtitle: Text(
                           'Show only news from local newspapers & outlets',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -266,10 +281,13 @@ class _LocalTabState extends State<LocalTab> {
                         Expanded(
                           child: TextField(
                             controller: _countryController,
+                            style: const TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                               labelText: 'Country',
+                              labelStyle: TextStyle(fontSize: 12),
                               hintText: 'e.g., United States',
-                              prefixIcon: Icon(Icons.flag),
+                              hintStyle: TextStyle(fontSize: 12),
+                              prefixIcon: Icon(Icons.flag, size: 18),
                               border: OutlineInputBorder(),
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -282,14 +300,17 @@ class _LocalTabState extends State<LocalTab> {
                         const SizedBox(width: 8),
                         ElevatedButton.icon(
                           onPressed: _applyFilters,
-                          icon: const Icon(Icons.search, size: 18),
-                          label: const Text('Search'),
+                          icon: const Icon(Icons.search, size: 16),
+                          label: const Text(
+                            'Search',
+                            style: TextStyle(fontSize: 13),
+                          ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
+                              horizontal: 14,
+                              vertical: 10,
                             ),
-                            minimumSize: const Size(0, 40),
+                            minimumSize: const Size(0, 38),
                           ),
                         ),
                       ],
@@ -488,8 +509,8 @@ class _LocalTabState extends State<LocalTab> {
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
-                              vertical: 12.0,
-                              horizontal: 16.0,
+                              vertical: 8.0,
+                              horizontal: 12.0,
                             ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -505,15 +526,15 @@ class _LocalTabState extends State<LocalTab> {
                                 const Icon(
                                   Icons.location_on,
                                   color: Colors.white,
-                                  size: 18,
+                                  size: 14,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
                                     "Showing news for: $_locationName${_localSourcesOnly ? ' (Local sources only)' : ''}",
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: Colors.white,
                                     ),
                                     textAlign: TextAlign.center,
@@ -521,17 +542,17 @@ class _LocalTabState extends State<LocalTab> {
                                   ),
                                 ),
                                 if (_localSourcesOnly) ...[
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                      horizontal: 6,
+                                      vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withValues(
                                         alpha: 0.3,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -539,15 +560,15 @@ class _LocalTabState extends State<LocalTab> {
                                         const Icon(
                                           Icons.newspaper,
                                           color: Colors.white,
-                                          size: 14,
+                                          size: 12,
                                         ),
-                                        const SizedBox(width: 4),
+                                        const SizedBox(width: 3),
                                         Text(
                                           '${snapshot.data!.length}',
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 12,
+                                            fontSize: 11,
                                           ),
                                         ),
                                       ],

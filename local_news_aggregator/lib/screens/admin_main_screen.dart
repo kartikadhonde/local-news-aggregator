@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import 'global_tab.dart';
 import 'local_tab.dart';
 import 'admin_review_feedback_screen.dart';
+import 'admin_analytics_screen.dart';
 import 'profile_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
@@ -16,11 +17,18 @@ class AdminMainScreen extends StatefulWidget {
 class _AdminMainScreenState extends State<AdminMainScreen> {
   int _currentIndex = 0;
 
-  late final List<Widget> _screens = [
-    const _AdminNewsHome(),
-    const AdminReviewFeedbackScreen(),
-    const ProfileScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const AdminAnalyticsScreen(),
+      const _AdminNewsScreen(),
+      const AdminReviewFeedbackScreen(),
+      const ProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +36,20 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
+        automaticallyImplyLeading: false, // Remove back button
         actions: [
           if (user != null)
             Padding(
-              padding: const EdgeInsets.only(right: 12.0),
-              child: Center(
-                child: Text(
-                  user.name,
-                  style: const TextStyle(color: Colors.white),
-                ),
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Row(
+                children: [
+                  Icon(Icons.admin_panel_settings, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    user.name,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
             ),
         ],
@@ -46,6 +59,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           NavigationDestination(icon: Icon(Icons.newspaper), label: 'News'),
           NavigationDestination(icon: Icon(Icons.feedback), label: 'Feedback'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
@@ -55,27 +72,29 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
   }
 }
 
-class _AdminNewsHome extends StatelessWidget {
-  const _AdminNewsHome();
+class _AdminNewsScreen extends StatelessWidget {
+  const _AdminNewsScreen();
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Manage News'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.location_on), text: 'Local'),
-              Tab(icon: Icon(Icons.public), text: 'Global'),
-            ],
+      child: Column(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: const TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.location_on), text: 'Local'),
+                Tab(icon: Icon(Icons.public), text: 'Global'),
+              ],
+            ),
           ),
-        ),
-        body: const TabBarView(children: [LocalTab(), GlobalTab()]),
+          const Expanded(
+            child: TabBarView(children: [LocalTab(), GlobalTab()]),
+          ),
+        ],
       ),
     );
   }
 }
-
-

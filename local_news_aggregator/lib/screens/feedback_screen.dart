@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../widgets/common_widgets.dart';
 
 class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
@@ -23,9 +24,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Future<void> _submit() async {
     final message = _controller.text.trim();
     if (message.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your feedback')),
-      );
+      showMessage(context, 'Please enter your feedback', isError: true);
       return;
     }
 
@@ -34,15 +33,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     if (user == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must be logged in to send feedback')),
-      );
+      showMessage(context, 'You must be logged in', isError: true);
       setState(() => _submitting = false);
       return;
     }
 
     try {
-      print('Submitting feedback for user: ${user.email}');
       await FirebaseFirestore.instance.collection('feedback').add({
         'message': message,
         'userId': user.id,
@@ -52,26 +48,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         'status': 'new',
       });
 
-      print('Feedback submitted successfully');
       if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Feedback sent successfully. Thank you!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      showMessage(context, 'Feedback sent successfully. Thank you!');
       _controller.clear();
       Navigator.of(context).pop();
     } catch (e) {
-      print('Error submitting feedback: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to send feedback: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
-        ),
+      showMessage(
+        context,
+        'Failed to send feedback: ${e.toString()}',
+        isError: true,
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -81,8 +67,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Send Feedback'), elevation: 0),
-      body: SingleChildScrollView(
+      appBar: AppBar(title: const Text('Send Feedback')),
+      body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +79,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Help us improve by sharing your thoughts and suggestions.',
+              'Help us improve by sharing your thoughts.',
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
@@ -103,17 +89,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               maxLength: 500,
               decoration: InputDecoration(
                 hintText: 'Enter your feedback here...',
-                hintStyle: TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.teal, width: 2),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
-                contentPadding: const EdgeInsets.all(16),
               ),
             ),
             const SizedBox(height: 24),
@@ -122,22 +100,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: _submitting ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
                 icon: _submitting
                     ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
+                          color: Colors.white,
                         ),
                       )
                     : const Icon(Icons.send),

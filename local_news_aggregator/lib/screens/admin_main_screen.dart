@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import 'global_tab.dart';
-import 'local_tab.dart';
 import 'admin_review_feedback_screen.dart';
 import 'admin_analytics_screen.dart';
-import 'profile_screen.dart';
+import 'welcome_screen.dart';
 
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
@@ -24,10 +22,37 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     super.initState();
     _screens = [
       const AdminAnalyticsScreen(),
-      const _AdminNewsScreen(),
       const AdminReviewFeedbackScreen(),
-      const ProfileScreen(),
     ];
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final authService = context.read<AuthService>();
+              Navigator.of(dialogContext).pop();
+              await authService.logout();
+              if (!mounted) return;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -36,11 +61,11 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        automaticallyImplyLeading: false, // Remove back button
+        automaticallyImplyLeading: false,
         actions: [
           if (user != null)
             Padding(
-              padding: const EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 8.0),
               child: Row(
                 children: [
                   Icon(Icons.admin_panel_settings, size: 20),
@@ -48,6 +73,12 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                   Text(
                     user.name,
                     style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: _showLogoutDialog,
+                    tooltip: 'Logout',
                   ),
                 ],
               ),
@@ -63,36 +94,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          NavigationDestination(icon: Icon(Icons.newspaper), label: 'News'),
           NavigationDestination(icon: Icon(Icons.feedback), label: 'Feedback'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
-    );
-  }
-}
-
-class _AdminNewsScreen extends StatelessWidget {
-  const _AdminNewsScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Column(
-        children: [
-          Container(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: const TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.location_on), text: 'Local'),
-                Tab(icon: Icon(Icons.public), text: 'Global'),
-              ],
-            ),
-          ),
-          const Expanded(
-            child: TabBarView(children: [LocalTab(), GlobalTab()]),
-          ),
         ],
       ),
     );
